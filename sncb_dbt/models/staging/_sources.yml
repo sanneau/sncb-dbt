@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: irail
+    schema: public
+    tables:
+      - name: stg_station
+      - name: dim_station
+      - name: fact_departure
