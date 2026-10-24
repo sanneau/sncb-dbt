@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: stg_stations
+    description: c'est une vur qui réprésente les station récupérer dans le silver
+    columns:
+      - name: station_id
+        data_tests:
+          - unique
+          - not_null
+      - name: station_name
+        data_tests:
+          - not_null
