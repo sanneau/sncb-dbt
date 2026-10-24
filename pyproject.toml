@@ -1,7 +1,7 @@
 [project]
 name = "sncb-dbt"
 version = "0.1.0"
-description = "Add your description here"
+description = "dbt project for the T of the iRail ELT pipeline: staging and marts built from the silver data"
 readme = "README.md"
 authors = [
     { name = "sanneau", email = "anneausimon@gmail.com" }
@@ -10,10 +10,3 @@ requires-python = ">=3.12"
 dependencies = [
     "dbt-postgres>=1.11.0",
 ]
-
-[project.scripts]
-sncb-dbt = "sncb_dbt:main"
-
-[build-system]
-requires = ["uv_build>=0.12.17,<0.13.0"]
-build-backend = "uv_build"
