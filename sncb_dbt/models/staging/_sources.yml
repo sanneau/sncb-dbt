@@ -1,9 +1,12 @@
 version: 2
 
 sources:
-  - name: irail
-    schema: public
+  - name: silver
+    description: Silver layer of irail-ingestion (Parquet files)
     tables:
-      - name: stg_station
-      - name: dim_station
-      - name: fact_departure
+      - name: stations
+        config:
+          external_location: "read_parquet('../../irail-ingestion/data/silver/stations/stations.parquet')"
+      - name: departures
+        config:
+          external_location: "read_parquet('../../irail-ingestion/data/silver/departures/date=*/departures.parquet', hive_partitioning = true)"

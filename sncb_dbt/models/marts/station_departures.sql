@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+{{ config(materialized='table',enabled=false) }}
 SELECT s.station_id as station_id,
 	   count(*) as number_departures,
 	   s.station_name as station_name
