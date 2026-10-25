@@ -2,6 +2,8 @@
 
 ## 001 — Source of the departures for dbt (2026-10-24)
 
+**Status**: Implemented (branch `feat/duckdb`)
+
 **Context**: The silver layer of [irail-ingestion](https://github.com/sanneau/irail-ingestion) is a set of
 Parquet files (`data/silver/departures/date=YYYY-MM-DD/`). dbt only reads tables from the database it is
 connected to, so we need a way for dbt to read the silver data and build the Data Vault and the star schema
