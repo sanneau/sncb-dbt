@@ -1,8 +1,30 @@
 version: 2
 
 models:
+  - name: stg_departures
+    description: One row per scheduled departure seen at a collection, cleaned from the silver layer.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - departure_station_id
+              - vehicle_id
+              - scheduled_at
+    columns:
+      - name: departure_station_id
+        description: Departure station (iRail id, e.g. BE.NMBS.008813003).
+        data_tests:
+          - not_null
+      - name: vehicle_id
+        description: Train number (e.g. BE.NMBS.IC744); runs every day, so not unique on its own.
+        data_tests:
+          - not_null
+      - name: scheduled_at
+        description: Scheduled departure time (UTC).
+        data_tests:
+          - not_null
   - name: stg_stations
-    description: c'est une vur qui réprésente les station récupérer dans le silver
+    description: view which is representing the station
     columns:
       - name: station_id
         data_tests:
