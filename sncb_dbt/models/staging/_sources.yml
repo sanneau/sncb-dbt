@@ -6,7 +6,7 @@ sources:
     tables:
       - name: stations
         config:
-          external_location: "read_parquet('../../irail-ingestion/data/silver/stations/stations.parquet')"
+          external_location: "read_parquet('{{ env_var('IRAIL_SILVER_DIR') }}/stations/stations.parquet')"
       - name: departures
         config:
-          external_location: "read_parquet('../../irail-ingestion/data/silver/departures/date=*/departures.parquet', hive_partitioning = true)"
+          external_location: "read_parquet('{{ env_var('IRAIL_SILVER_DIR') }}/departures/date=*/departures.parquet', hive_partitioning = true)"
