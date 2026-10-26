@@ -24,7 +24,7 @@ models:
         data_tests:
           - not_null
   - name: stg_stations
-    description: view which is representing the station
+    description:  One row per stations, cleaned from the silver layer.
     columns:
       - name: station_id
         data_tests:

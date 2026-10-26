@@ -17,3 +17,9 @@ SELECT
     source_file,
     date AS collection_date_utc
 FROM {{ source('silver', 'departures') }}
+-- The silver job works one day at a time: a departure collected just before and just after
+-- midnight UTC is in 2 partitions. Keep only its latest collection (most up-to-date delay). See ADR 002.
+QUALIFY row_number() OVER (
+    PARTITION BY departure_station_id, vehicle_id, scheduled_at
+    ORDER BY snapshot_at DESC
+) = 1
