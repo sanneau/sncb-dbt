@@ -35,14 +35,27 @@ sncb_dbt/
 
 ### Prerequisites
 - [uv](https://docs.astral.sh/uv/) installed
-- irail-ingestion cloned in the same parent folder as sncb-dbt, with the silver data generated (`data/silver/`).
+- The silver data of [irail-ingestion](https://github.com/sanneau/irail-ingestion) generated somewhere on the machine
+  (`data/silver/`)
 
 ### 1. Install dependencies
 ```bash
 uv sync
 ```
 
-### 2. Configure the connection (not versioned)
+### 2. Configure the silver path
+```bash
+cp .env.example .env
+```
+Then set the **absolute** path of the silver folder in `.env`:
+```
+IRAIL_SILVER_DIR=/home/<you>/projects/irail-ingestion/data/silver
+```
+The location of the silver data depends on the machine (a laptop, a CI runner, a cloud storage), so it is
+configuration, not code. `.env` is ignored by Git; `.env.example` documents the variable.
+If the variable is missing, dbt stops with `Env var required but not provided: 'IRAIL_SILVER_DIR'`.
+
+### 3. Configure the connection (not versioned)
 Create `~/.dbt/profiles.yml`:
 ```yaml
 sncb_dbt:
@@ -55,12 +68,13 @@ sncb_dbt:
 ```
 No password: DuckDB is a single file (`sncb.duckdb`), created on the first run and ignored by Git.
 
-### 3. Run
+### 4. Run
+`--env-file` is an option of `uv run` (it loads `.env` before starting dbt), so it goes **before** `dbt`.
 ```bash
-cd sncb_dbt               # required: the paths to the silver files are relative to the folder of dbt_project.yml
-uv run dbt deps           # installs the packages (dbt_utils)
-uv run dbt debug          # checks the connection
-uv run dbt build          # runs models and tests in DAG order
-uv run dbt show --select stg_departures   # previews 5 rows
-uv run dbt docs generate && uv run dbt docs serve   # documentation + lineage graph
+cd sncb_dbt               # the folder of dbt_project.yml; sncb.duckdb is created here
+uv run --env-file ../.env dbt deps           # installs the packages (dbt_utils)
+uv run --env-file ../.env dbt debug          # checks the connection
+uv run --env-file ../.env dbt build          # runs models and tests in DAG order
+uv run --env-file ../.env dbt show --select stg_departures   # previews 5 rows
+uv run --env-file ../.env dbt docs generate && uv run --env-file ../.env dbt docs serve   # documentation + lineage graph
 ```
