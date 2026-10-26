@@ -17,3 +17,10 @@ SELECT
     source_file,
     date AS collection_date_utc
 FROM {{ source('silver', 'departures') }}
+-- Ajout de qualify + partition to make sur the grain is unique because the collect 
+-- is fragmented in multiple files and the timing can be bad we are making sure the unicity 
+-- is respected thanks to this partitionning 
+QUALIFY row_number() OVER (
+    PARTITION BY departure_station_id, vehicle_id, scheduled_at
+    ORDER BY snapshot_at DESC
+) = 1
