@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: dim_stations
+    description: >
+      Station dimension: one row per station (current version only, no history yet).
+      Built from stg_stations.
+    columns:
+      - name: station_key
+        description: >
+          Surrogate key: md5 of station_id (dbt_utils.generate_surrogate_key). Stable across rebuilds,
+          so the fact tables can join on it.
+        data_tests:
+          - not_null
+          - unique
+      - name: station_id
+        description: Business key from iRail (e.g. BE.NMBS.008813003).
+        data_tests:
+          - not_null
+      - name: station_name
+        description: Standard name of the station (e.g. Brussel-Centraal/Bruxelles-Central).
+      - name: longitude
+        description: Longitude of the station (WGS 84).
+      - name: latitude
+        description: Latitude of the station (WGS 84).
+
+  - name: fct_departures
+    description: >
+      Departure facts: one row per departure (departure station, vehicle, scheduled time), from its latest
+      collection. Holds the delay, cancellation and platform measures.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - departure_station_id
+              - vehicle_id
+              - scheduled_at
+    columns:
+      - name: departure_station_key
+        description: Key of the departure station, joins to dim_stations.station_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_stations')
+                field: station_key
+      - name: destination_station_key
+        description: Key of the destination station, joins to dim_stations.station_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_stations')
+                field: station_key
+      - name: scheduled_at
+        description: Scheduled departure time (UTC).
+      - name: delay_seconds
+        description: Delay at the latest collection, in seconds (0 = on time).
+      - name: canceled
+        description: True if the departure was canceled.
+
+  - name: station_departures
+    description: Number of departures per departure station, for a first look at the busiest stations.
