@@ -36,7 +36,7 @@ from it.
 
 ## 002 — Departures seen on both sides of midnight UTC (2026-10-26)
 
-**Status**: Accepted
+**Status**: Implemented (branch `feat/marts`)
 
 **Context**: The silver job of irail-ingestion runs one day at a time (`irail-transform <day>`): it reads the
 bronze of that day only, keeps the latest snapshot of each departure, and writes one partition
