@@ -1,6 +1,10 @@
 -- Station names are not kept: they come from stg_stations (single source of truth, no duplicated data)
 -- occupancy is not kept: not useful for the analyses
 -- The first 3 columns are the grain (one row = one departure)
+-- Table, not view: as a view, DuckDB 2.0.0 applies the incremental filter of fct_departures
+-- before the QUALIFY below, which lets duplicates through (found on 2026-11-03).
+
+{{config(materialized='table')}}
 SELECT
     departure_station_id,
     vehicle_id,

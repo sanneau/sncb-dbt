@@ -1,0 +1,10 @@
+version: 2
+
+snapshots:
+  - name: snp_stations
+    relation: ref('stg_stations')
+    config: 
+      unique_key: ['station_id']
+      strategy: check
+      check_cols: all
+      dbt_valid_to_current: "cast('9999-12-31' as timestamp)"
