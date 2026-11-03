@@ -1,4 +1,4 @@
-
+-- The hole in the night are artefacts because collected at is equal to the last collect of each departures. for the real stops, check the bronze.
 WITH time_table AS (
     SELECT DISTINCT collected_at::timestamptz AS collected_at FROM {{ ref('stg_departures') }}
 )
