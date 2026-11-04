@@ -8,9 +8,9 @@
 SELECT
     departure_station_id,
     vehicle_id,
-    scheduled_at,
+    scheduled_at::timestamptz AS scheduled_at,
     destination_station_id,
-    snapshot_at AS collected_at,
+    snapshot_at::timestamptz AS collected_at,
     delay_s AS delay_seconds,
     delay_s / 60.0 as delay_minutes,
     train_type,
