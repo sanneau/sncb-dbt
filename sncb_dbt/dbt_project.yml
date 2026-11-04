@@ -31,4 +31,6 @@ models:
       +materialized: table
     staging:
       +materialized: view
+    vault:
+      +materialized: table
 

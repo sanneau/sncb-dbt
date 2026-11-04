@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: hub_station
+    description: >
+      Hub for stations, with the station_id as business key. Grain: one row per station_id. Source: snp_stations.
+    columns:
+      - name: station_hk
+        description: >
+          Hash key of the station, generated from the station_id. Joins to sat_station.station_hk.
+        data_tests:
+          - not_null
+          - unique
+      - name: station_id
+        description: Business key from iRail (e.g. BE.NMBS.008813003).
+        data_tests:
+          - not_null
+          - unique
+      - name: load_ts
+        description: Timestamp of the first load of this station_id.
+      - name: record_source
+        description: Source of the record (e.g. irail.stations).
+  
+  - name: sat_station
+    description: >
+      Satellite for stations: name and coordinates, one row per version. Grain: station_hk + load_ts.
+      Source: snp_stations.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - station_hk
+              - load_ts
+    columns:
+      - name: station_hk
+        description: >
+          Hash key of the station, generated from the station_id. Joins to hub_station.station_hk.
+        data_tests:
+          - not_null  
+          - relationships:
+              arguments:
+                to: ref('hub_station')
+                field: station_hk
+      - name: load_ts
+        description: Timestamp of the first load of this station_id and station_name/longitude/latitude combination.
+      - name: record_source
+        description: Source of the record (e.g. irail.stations).
+      - name: hash_diff
+        description: Hash of the station_name, longitude and latitude, used to detect changes in these attributes.
+
