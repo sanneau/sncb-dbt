@@ -1,5 +1,3 @@
-{{ config(materialized='table') }}
-
 SELECT d.station_id as station_id,
 	   count(*) as number_departures,
 	   d.station_name as station_name

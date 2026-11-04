@@ -1,5 +1,3 @@
-{{ config(materialized='table') }}
-
 SELECT 
     sta.station_name AS station_name,
     dep.departure_station_key AS station_key, 
