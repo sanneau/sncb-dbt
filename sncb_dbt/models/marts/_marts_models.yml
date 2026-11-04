@@ -65,9 +65,10 @@ models:
     description: >
       Punctuality per departure station: number of departures, average delay in minutes, percentage of
       departures on time and number of cancellations (canceled departures are left out of the delay and
-      on-time figures). Grain: one row per station. Source: fct_departures and dim_stations.
+      on-time figures). Grain: one row per station, with its current name (all versions of a station
+      are grouped together). Source: fct_departures and dim_stations.
     columns:
-      - name: station_key
+      - name: station_id
         data_tests:
           - not_null
           - unique

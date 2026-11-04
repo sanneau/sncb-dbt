@@ -1,8 +1,6 @@
-{{ config(materialized='table') }}
-
 SELECT 
     sta.station_name AS station_name,
-    dep.departure_station_key AS station_key, 
+    dep.departure_station_id AS station_id, 
     count(*) AS number_of_departures, 
     ROUND(AVG(delay_minutes) FILTER (WHERE dep.canceled = false) , 2) AS avg_delay_minutes,
     ROUND(
@@ -13,5 +11,5 @@ SELECT
     count(*) FILTER (WHERE dep.canceled = true ) AS number_of_cancellations
 FROM {{ ref('fct_departures') }} AS dep
 JOIN {{ ref('dim_stations') }} as sta
-ON  dep.departure_station_key = sta.station_key
-GROUP BY dep.departure_station_key, station_name
+ON  dep.departure_station_id = sta.station_id AND sta.is_current
+GROUP BY dep.departure_station_id, sta.station_name
