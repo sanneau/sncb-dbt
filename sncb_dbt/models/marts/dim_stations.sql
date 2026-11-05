@@ -1,22 +1,26 @@
-WITH versions AS (
-    SELECT
-        *,
-        row_number() OVER (PARTITION BY station_id ORDER BY dbt_valid_from ASC) AS version_number
-    FROM {{ ref('snp_stations') }}
-)
-SELECT 
-    {{ dbt_utils.generate_surrogate_key(['station_id','dbt_valid_from']) }} AS station_key,
+with
+    versions as (
+        select
+            *,
+            row_number() over (
+                partition by station_id order by dbt_valid_from asc
+            ) as version_number
+        from {{ ref('snp_stations') }}
+    )
+select
+    {{ dbt_utils.generate_surrogate_key(['station_id','dbt_valid_from']) }}
+    as station_key,
     station_id,
     station_name,
     longitude,
     latitude,
-    CASE
-        WHEN version_number = 1 THEN '1900-01-01 00:00:00'::timestamp
-        ELSE dbt_valid_from 
-    END AS valid_from,
-    dbt_valid_to AS valid_to,
-    CASE
-        WHEN dbt_valid_to = '9999-12-31 00:00:00'::timestamp THEN TRUE
-        ELSE FALSE
-    END AS is_current
-FROM versions
+    case
+        when version_number = 1
+        then '1900-01-01 00:00:00'::timestamp
+        else dbt_valid_from
+    end as valid_from,
+    dbt_valid_to as valid_to,
+    case
+        when dbt_valid_to = '9999-12-31 00:00:00'::timestamp then true else false
+    end as is_current
+from versions
