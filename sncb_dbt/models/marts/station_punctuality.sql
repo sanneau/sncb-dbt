@@ -1,15 +1,20 @@
-SELECT 
-    sta.station_name AS station_name,
-    dep.departure_station_id AS station_id, 
-    count(*) AS number_of_departures, 
-    ROUND(AVG(delay_minutes) FILTER (WHERE dep.canceled = false) , 2) AS avg_delay_minutes,
-    ROUND(
-        100 * count(*) FILTER (WHERE dep.delay_seconds = 0 AND NOT dep.canceled)
-            / NULLIF(count(*) FILTER (WHERE NOT dep.canceled), 0),
+select
+    sta.station_name as station_name,
+    dep.departure_station_id as station_id,
+    count(*) as number_of_departures,
+    round(
+        avg(delay_minutes) filter (where dep.canceled = false), 2
+    ) as avg_delay_minutes,
+    round(
+        100
+        * count(*) filter (where dep.delay_seconds = 0 and not dep.canceled)
+        / nullif(count(*) filter (where not dep.canceled), 0),
         2
-    ) AS on_time_percentage,
-    count(*) FILTER (WHERE dep.canceled = true ) AS number_of_cancellations
-FROM {{ ref('fct_departures') }} AS dep
-JOIN {{ ref('dim_stations') }} as sta
-ON  dep.departure_station_id = sta.station_id AND sta.is_current
-GROUP BY dep.departure_station_id, sta.station_name
+    ) as on_time_percentage,
+    count(*) filter (where dep.canceled = true) as number_of_cancellations
+from {{ ref('fct_departures') }} as dep
+join
+    {{ ref('dim_stations') }} as sta
+    on dep.departure_station_id = sta.station_id
+    and sta.is_current
+group by dep.departure_station_id, sta.station_name
