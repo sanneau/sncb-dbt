@@ -28,6 +28,12 @@ models:
     columns:
       - name: station_id
         data_tests:
+          - dbt_utils.expression_is_true:
+              name: stg_stations_station_id_format
+              arguments:
+                expression: "similar to 'BE[.]NMBS[.][0-9]{9}'"
+              config:
+                severity: warn
           - unique
           - not_null
       - name: station_name
