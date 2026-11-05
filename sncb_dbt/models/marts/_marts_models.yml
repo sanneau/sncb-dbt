@@ -58,17 +58,3 @@ models:
         description: Delay at the latest collection, in seconds (0 = on time).
       - name: canceled
         description: True if the departure was canceled.
-
-  - name: station_departures
-    description: Number of departures per departure station, for a first look at the busiest stations.
-  - name: station_punctuality
-    description: >
-      Punctuality per departure station: number of departures, average delay in minutes, percentage of
-      departures on time and number of cancellations (canceled departures are left out of the delay and
-      on-time figures). Grain: one row per station, with its current name (all versions of a station
-      are grouped together). Source: fct_departures and dim_stations.
-    columns:
-      - name: station_id
-        data_tests:
-          - not_null
-          - unique

@@ -25,7 +25,6 @@ sncb_dbt/
     │   ├── stg_stations.sql        # view on the silver stations: selects and renames the columns
     │   └── stg_departures.sql      # view on the silver departures (one row = one departure seen at a collection)
     └── marts/
-        └── station_departures.sql  # table: number of departures per station (disabled during the migration)
 ```
 
 - **staging**: one model per source table, cleaned (renamed, typed), with no business logic. Materialized as views.
