@@ -32,5 +32,7 @@ left join
     and dest_st.valid_from <= d.scheduled_at
     and d.scheduled_at < dest_st.valid_to
 {% if is_incremental() %}
-    where d.collection_date_utc >= (select max(collection_date_utc) from {{ this }})
+    where
+        d.collection_date_utc
+        >= (select max(collection_date_utc) from {{ this }}) - interval '3 days'
 {% endif %}
