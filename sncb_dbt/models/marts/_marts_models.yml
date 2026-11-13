@@ -58,3 +58,29 @@ models:
         description: Delay at the latest collection, in seconds (0 = on time).
       - name: canceled
         description: True if the departure was canceled.
+  - name: train_type_punctuality
+    description: >
+      Punctuality per train type: one row per train_type (IC, S1, L...), built from fct_departures.
+      Same definitions as station_punctuality.
+    columns:
+      - name: train_type
+        description: Train type (IC, S1, L, P...), the grain of this model.
+        data_tests:
+          - not_null
+          - unique
+      - name: departures
+        description: Number of departures that were not canceled.
+        data_tests:
+          - not_null
+      - name: avg_delay_minutes
+        description: Average delay in minutes, canceled departures excluded.
+        data_tests:
+          - not_null
+      - name: on_time_percentage
+        description: Share of non-canceled departures with a delay of 0, in percent.
+        data_tests:
+          - not_null
+      - name: number_of_cancellations
+        description: Number of canceled departures.
+        data_tests:
+          - not_null
