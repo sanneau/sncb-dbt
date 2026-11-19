@@ -84,3 +84,29 @@ models:
         description: Number of canceled departures.
         data_tests:
           - not_null
+  - name: hour_punctuality
+    description: >
+      Punctuality per hour: one row per hour, built from fct_departures.
+      Same definitions as station_punctuality + hour column.
+    columns:
+      - name: local_hour
+        description: Local hour of the scheduled departure.
+        data_tests:
+          - not_null
+          - unique
+      - name: departures_not_canceled
+        description: Number of departures that were not canceled.
+        data_tests:
+          - not_null
+      - name: moy_retard_minutes
+        description: Average delay in minutes, canceled departures excluded.
+        data_tests:
+          - not_null
+      - name: on_time_percentage
+        description: Share of non-canceled departures with a delay of 0, in percent.
+        data_tests:
+          - not_null
+      - name: number_of_cancellations
+        description: Number of canceled departures.
+        data_tests:
+          - not_null
