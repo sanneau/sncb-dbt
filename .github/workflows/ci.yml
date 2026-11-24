@@ -1,0 +1,54 @@
+# CI de dbt : à chaque PR (et après chaque merge sur main), GitHub vérifie le projet dbt
+# SANS données : la VM n'a que le dépôt Git, pas les Parquet du silver (ils sont sur ton PC).
+# On vérifie donc ce qui ne demande pas de données : le FORMAT du SQL (sqlfmt) et la COHÉRENCE du projet (dbt parse).
+# Pour la semaine 7 : un vrai `dbt build` sur un petit jeu de données d'exemple (des seeds).
+
+name: dbt CI
+
+on:
+  pull_request:          # à chaque PR, quelle que soit la branche
+  push:
+    branches: [main]     # et après chaque merge sur main (un merge = un push sur main)
+
+jobs:
+  parse:                 # le nom du job, choisi librement : il dit ce que fait le job
+    runs-on: ubuntu-latest   # une VM Linux neuve, jetée à la fin
+
+    # Variables d'environnement visibles par TOUTES les étapes du job.
+    # La VM part de zéro : ce qui est sur ton PC HORS de Git, la CI doit le recréer.
+    env:
+      # Où dbt cherche profiles.yml (la connexion). Par défaut : ~/.dbt/, qui n'existe pas sur la VM.
+      # On pointe vers le profil de la CI, commité dans ci/ (sans risque : DuckDB = un fichier, aucun mot de passe).
+      # Chemin RELATIF à sncb_dbt/, le dossier où tournent les commandes dbt (voir working-directory plus bas).
+      DBT_PROFILES_DIR: ../ci
+      # _sources.yml contient env_var('IRAIL_SILVER_DIR') : si la variable n'existe pas, dbt s'arrête.
+      # parse ne LIT pas les fichiers, il a juste besoin que la variable existe → une valeur factice suffit.
+      IRAIL_SILVER_DIR: /tmp/silver
+
+    steps:
+      # Copie le dépôt sur la VM (elle démarre vide). Une « action » = une étape toute faite, versionnée (@v4).
+      - uses: actions/checkout@v4
+
+      # Installe l'outil uv sur la VM (ce n'est pas une dépendance du projet, c'est l'outil qui les installe).
+      - uses: astral-sh/setup-uv@v6
+
+      # Installe dbt-duckdb et sqlfmt EXACTEMENT comme dans uv.lock.
+      # --locked : si uv.lock ne correspond plus à pyproject.toml, erreur (au lieu de recalculer en silence).
+      - run: uv sync --locked
+
+      # Le format du SQL, en lecture seule : échoue si un fichier SERAIT reformaté.
+      # « uv run » : sqlfmt est installé dans l'environnement du projet, pas directement sur la machine.
+      # Lancé à la racine (pas de working-directory) : c'est là qu'est pyproject.toml et sa liste d'exclusions.
+      - run: uv run sqlfmt --check .
+
+      # Télécharge les packages de packages.yml (dbt_utils) dans dbt_packages/, qui est ignoré par Git.
+      # = le « uv sync » de dbt. Doit passer AVANT parse : parse vérifie que chaque macro utilisée existe.
+      - run: uv run dbt deps
+        working-directory: sncb_dbt     # le dossier du projet dbt (underscore), là où est dbt_project.yml
+
+      # dbt lit TOUT le projet sans exécuter une seule requête (= le « terraform validate » de dbt) :
+      # il résout chaque ref() et source(), dessine le graphe des modèles, vérifie les .yml et les macros.
+      # Attrape : ref('fct_departure') sans le s, un .yml mal indenté, une accolade Jinja oubliée.
+      # N'attrape PAS : une colonne mal écrite dans le SQL (il faudrait exécuter la requête sur des données).
+      - run: uv run dbt parse
+        working-directory: sncb_dbt

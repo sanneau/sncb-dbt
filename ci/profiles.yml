@@ -1,0 +1,12 @@
+# Profil dbt réservé à la CI (GitHub Actions). Le workflow le trouve grâce à DBT_PROFILES_DIR=../ci.
+# Le PROJET dit QUOI calculer (les modèles SQL) ; le PROFIL dit OÙ l'exécuter (quelle base, quels identifiants).
+# Le profil de ton PC reste dans ~/.dbt/profiles.yml, hors du dépôt (en entreprise, il contient un mot de passe).
+# Celui-ci peut être commité : DuckDB = un simple fichier, aucun secret.
+
+sncb_dbt:            # le nom du PROFIL : doit être EXACTEMENT celui de dbt_project.yml (profile: 'sncb_dbt')
+  target: ci         # la CIBLE utilisée par défaut, parmi celles déclarées sous outputs
+  outputs:
+    ci:              # une cible = un environnement (dev, ci, prod…) ; ici, une seule
+      type: duckdb
+      path: sncb_ci.duckdb   # créé VIDE automatiquement à la 1re connexion ; parse n'a besoin de rien dedans
+      threads: 1
